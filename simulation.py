@@ -208,7 +208,7 @@ class SchoolSim(object):
                     room
                 )
                 heatS = Sensor(
-                    "Heat-" + room.name,
+                    "Temp-" + room.name,
                     [("Temperature", lambda: room.temperature)]
                 )
                 self.addSensor(heatS)
