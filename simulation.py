@@ -180,7 +180,6 @@ class SchoolSim(object):
     def step(self):
         self.beat += 1
         self.actDate += datetime.timedelta(hours=1)
-        print(self.actDate)
 
         d = ((int(self.actDate.strftime("%w")) + 6) % 7)
         h = int(self.actDate.strftime("%H"))
@@ -196,8 +195,6 @@ class SchoolSim(object):
             room = self.room[r]
             room.init(self.sun, self.noise)
             room.occupy([self.group[g] for g in groups])
-
-        # print(k)
 
     def defineRooms(
         self,
@@ -357,7 +354,7 @@ sim.initialize(
 sensors = sim.getSensorsMeta()
 fhs = {}
 for (sName, columns) in sensors.items():
-    fhs[sName] = open("data-" + sName + ".csv", "w")
+    fhs[sName] = open("data/data-" + sName + ".csv", "w")
     print(
         "\t".join(["TS", "Name"] + columns),
         file=fhs[sName]
