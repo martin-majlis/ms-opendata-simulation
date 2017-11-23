@@ -261,7 +261,7 @@ class SchoolSim(object):
 
     def getSensorData(self):
         res = {
-            'TS': self.actDate.isoformat()
+            'TS': self.actDate.strftime("%Y-%m-%d %H:%M:%S")
         }
         for s in self.sensors.values():
             res[s.name] = [c[1]() for c in s.column]
@@ -360,7 +360,7 @@ for (sName, columns) in sensors.items():
         file=fhs[sName]
     )
 
-for i in range(1000):
+for i in range(24 * 7 * 10):
     sim.step()
     data = sim.getSensorData()
     for sName in sensors.keys():
