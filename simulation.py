@@ -356,7 +356,7 @@ fhs = {}
 for (sName, columns) in sensors.items():
     fhs[sName] = open("data/data-" + sName + ".csv", "w")
     print(
-        "\t".join(["TS", "Name"] + columns),
+        ",".join(["TS", "Name"] + columns),
         file=fhs[sName]
     )
 
@@ -365,6 +365,6 @@ for i in range(1000):
     data = sim.getSensorData()
     for sName in sensors.keys():
         print(
-            "\t".join(map(str, [data['TS'], sName] + data[sName])),
+            ",".join(map(str, [data['TS'], sName] + data[sName])),
             file=fhs[sName]
         )
