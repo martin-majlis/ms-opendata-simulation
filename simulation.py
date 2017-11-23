@@ -45,15 +45,17 @@ class Room(object):
         self.nStudents = 0
 
     def occupy(self, groups):
+        # print(self)
         for g in groups:
             self.temperature += g.heat
             self.noise += g.noise
             self.nStudents += len(g.student)
+            # print(repr(self) + "\t" + repr(gq))
 
     def __repr__(self):
         return (
-            "Room ({}) = H: {}, N: {}, G: {}"
-        ).format(self.name, self.heat, self.noise)
+            "Room ({}) = T: {}, N: {}, S: {}"
+        ).format(self.name, self.temperature, self.noise, self.nStudents)
 
 
 class Group(object):
@@ -81,10 +83,12 @@ class Sensor(object):
     def __init__(
         self,
         name,
-        column
+        column,
+        ent=None,
     ):
         self.name = name
         self.column = column
+        self.ent = ent
 
 
 class Wind(object):
@@ -103,7 +107,7 @@ class Sun(object):
         self.active = False
 
     def step(self, _d, h):
-        prob = 0.25
+        prob = 0.28
         self.active = False
         if h > 5 and h <= 15:
             prob = 0.7
@@ -209,17 +213,20 @@ class SchoolSim(object):
                 )
                 heatS = Sensor(
                     "Temp-" + room.name,
-                    [("Temperature", lambda: room.temperature)]
+                    [("Temperature", lambda room=room: room.temperature)],
+                    room
                 )
                 self.addSensor(heatS)
                 heatS = Sensor(
                     "Noise-" + room.name,
-                    [("Noise", lambda: room.noise)]
+                    [("Noise", lambda room=room: room.noise)],
+                    room
                 )
                 self.addSensor(heatS)
                 countS = Sensor(
                     "Count-" + room.name,
-                    [("Count", lambda: room.nStudents)]
+                    [("Count", lambda room=room: room.nStudents)],
+                    room,
                 )
                 self.addSensor(countS)
 
@@ -234,9 +241,9 @@ class SchoolSim(object):
                 for g in range(self.nGroups):
                     prob = 0
                     if d < 5:  # pracovni den
-                        if h > 5 and h < 16:  # doba v prubehu dne
-                            if h in [6, 15]:
-                                prob = 0.2
+                        if h > 5 and h < 17:  # doba v prubehu dne
+                            if h in [6, 15, 16]:
+                                prob = 0.3
                             elif h in [7, 14]:
                                 prob = 0.6
                             else:
@@ -277,8 +284,8 @@ class SchoolSim(object):
             g2 = math.floor(self.nGroups * random.random())
             student = Student(
                 name=str(i),
-                heat=random.gauss(0.1, 0.03),
-                noise=random.gauss(0.5, 0.13),
+                heat=random.gauss(0.2, 0.05),
+                noise=random.gauss(0.6, 0.1),
                 group=[g1, g2]
             )
             for g in [g1, g2]:
@@ -345,7 +352,7 @@ sim.defineRooms(
 )
 
 sim.generateTimeTable()
-
+# print(repr(sim.timetable))
 
 sim.initialize(
     startDate=datetime.datetime(2017, 10, 23)

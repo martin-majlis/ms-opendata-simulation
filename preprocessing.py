@@ -7,7 +7,7 @@ import re
 import sys
 
 
-LOOK_BACK = [1, 3, 6, 12, 24]
+LOOK_BACK = [1, 3, 6]
 VALUE_COLS = ["Temperature", "Noise", "Count", "Direction", "Speed"]
 VALUE_COLS_RE = re.compile("(" + "|".join(VALUE_COLS) + ")$")
 COUNT_RE = re.compile("Count$")
@@ -92,6 +92,7 @@ for i in range(len(combinedData)):
 
     rec['D_DayOfWeek'] = ["Po", "Ut", "St", "Ct", "Pa", "So", "Ne"][d]
     rec['D_HourOfDay'] = str(h) + "h"
+    rec['D_DayHour'] = rec['D_DayOfWeek'] + "-" + rec['D_HourOfDay']
 
     for b in LOOK_BACK:
         if i >= b:
