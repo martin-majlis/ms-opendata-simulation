@@ -10,7 +10,8 @@ import sys
 LOOK_BACK = [1, 3, 6]
 VALUE_COLS = ["Temperature", "Noise", "Count", "Direction", "Speed"]
 VALUE_COLS_RE = re.compile("(" + "|".join(VALUE_COLS) + ")$")
-COUNT_RE = re.compile("Count$")
+STUDENTS_COUNT_RE = re.compile("Students.*Count$")
+BIRDS_COUNT_RE = re.compile("Birds.*Count$")
 
 
 def loadData(fName, dataCols):
@@ -72,19 +73,24 @@ for fName in glob.glob("data/data*.csv"):
 
 saveData("preprocessed/just-merged.csv", combinedData)
 
-keys = list(combinedData[0].keys()) + ["D_TOTAL-Count"]
+keys = list(combinedData[0].keys()) + \
+    ["D_StudentsTotal-Count", "D_BirdsTotal-Count"]
 
 for i in range(len(combinedData)):
     rec = combinedData[i]
-    totalC = 0
+    sTotalC = 0
+    bTotalC = 0
 
     for k in keys:
-        if k == "D_TOTAL-Count":
+        if k in ["D_StudentsTotal-Count", "D_BirdsTotal-Count"]:
             continue
-        if COUNT_RE.search(k) is not None:
-            totalC += rec[k]
+        if STUDENTS_COUNT_RE.search(k) is not None:
+            sTotalC += rec[k]
+        if BIRDS_COUNT_RE.search(k) is not None:
+            bTotalC += rec[k]
 
-    rec['D_TOTAL-Count'] = totalC
+    rec['D_StudentsTotal-Count'] = sTotalC
+    rec['D_BirdsTotal-Count'] = bTotalC
     dt = datetime.datetime.strptime(rec['TS'], "%Y-%m-%d %H:%M:%S")
 
     d = ((int(dt.strftime("%w")) + 6) % 7)
