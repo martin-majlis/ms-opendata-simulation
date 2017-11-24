@@ -29,7 +29,8 @@ class Room(object):
         self,
         name,
         heat,
-        noise
+        noise,
+        birds
     ):
         self.name = name
         self.baseHeat = heat
@@ -37,6 +38,7 @@ class Room(object):
         self.temperature = 0
         self.noise = 0
         self.nStudents = 0
+        self.nBirds = birds
 
     def init(self, sun, noise):
         self.temperature = sun.temperature + \
@@ -110,7 +112,7 @@ class Sun(object):
         prob = 0.28
         self.active = False
         if h > 5 and h <= 15:
-            prob = 0.7
+            prob = 0.75
             self.active = True
 
         if self.temperature < -10:
@@ -217,15 +219,28 @@ class SchoolSim(object):
                     room
                 )
                 self.addSensor(heatS)
+
                 heatS = Sensor(
                     "Noise-" + room.name,
                     [("Noise", lambda room=room: room.noise)],
                     room
                 )
                 self.addSensor(heatS)
+
                 countS = Sensor(
-                    "Count-" + room.name,
+                    "Students-" + room.name,
                     [("Count", lambda room=room: room.nStudents)],
+                    room,
+                )
+                self.addSensor(countS)
+
+                self.addSensor(heatS)
+                countS = Sensor(
+                    "Birds-" + room.name,
+                    [("Count", lambda room=room: (
+                        int(random.gauss(1, 0.2) * (room.nBirds - room.nBirds *
+                                                    min(room.nStudents / 40.0, 1)))
+                    ))],
                     room,
                 )
                 self.addSensor(countS)
@@ -253,7 +268,7 @@ class SchoolSim(object):
                         while True:
                             roomIndex = math.floor(
                                 self.nRooms * random.random())
-                            if len(self.timetable[k][roomIndex]) < 3:
+                            if len(self.timetable[k][roomIndex]) < 5:
                                 self.timetable[k][roomIndex].append(g)
                                 break
 
@@ -284,7 +299,7 @@ class SchoolSim(object):
             g2 = math.floor(self.nGroups * random.random())
             student = Student(
                 name=str(i),
-                heat=random.gauss(0.2, 0.05),
+                heat=random.gauss(0.3, 0.05),
                 noise=random.gauss(0.6, 0.1),
                 group=[g1, g2]
             )
@@ -315,7 +330,7 @@ class SchoolSim(object):
             "OutTempJ",
             [
                 ("Temperature", lambda: self.sun.temperature +
-                 (15 if self.sun.active else 0))
+                 (10 if self.sun.active else 0))
             ]
         )
         self.addSensor(outTempJ)
@@ -337,7 +352,7 @@ class SchoolSim(object):
 
 sim = SchoolSim(
     nStudents=150,
-    nGroups=17
+    nGroups=20
 )
 
 # Kazda mistnost ma:
@@ -346,9 +361,9 @@ sim = SchoolSim(
 # - jaky podil dodatecneho hluku se prenese
 # Slunce sviti z jihu a rusna cesta je na zapade
 sim.defineRooms(
-    [[("SZ", 1, 0.95), ("SS", 1, 0.95), ("SV", 1, 0.75)],
-     [("ZZ", 5, 0.95), ("CC", 5, 0.85), ("VV", 5, 0.73)],
-     [("JZ", 10, 0.95), ("JJ", 10, 0.75), ("JV", 10, 0.70)]]
+    [[("SZ", 1, 0.95, 5), ("SS", 1, 0.95, 10), ("SV", 1, 0.75, 15)],
+     [("ZZ", 5, 0.95, 10), ("CC", 5, 0.85, 0), ("VV", 5, 0.73, 20)],
+     [("JZ", 10, 0.95, 10), ("JJ", 10, 0.75, 20), ("JV", 10, 0.70, 30)]]
 )
 
 sim.generateTimeTable()
@@ -367,7 +382,7 @@ for (sName, columns) in sensors.items():
         file=fhs[sName]
     )
 
-for i in range(24 * 7 * 10):
+for i in range(24 * 7 * 20):
     sim.step()
     data = sim.getSensorData()
     for sName in sensors.keys():
